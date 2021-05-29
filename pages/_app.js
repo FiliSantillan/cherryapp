@@ -61,7 +61,11 @@ class MyApp extends App {
             forceRedirect: true,
           }}
         >
-          <MyProvider Component={Component} {...pageProps} />
+          <MyProvider
+            Component={Component}
+            {...pageProps}
+            shopOrigin={shopOrigin}
+          />
         </Provider>
       </AppProvider>
     );

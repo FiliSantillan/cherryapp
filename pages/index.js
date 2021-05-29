@@ -1,38 +1,54 @@
-import React, { useState } from "react";
-import { Page } from "@shopify/polaris";
+import React, { useState, useEffect } from "react";
+import { EmptyState, Page } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
+import ProductPage from "../components/ProductPage";
+import ProductEmptyState from "../components/ProductEmptyState";
+import store from "store-js";
 
-function index() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [products, setProducts] = useState([]);
+function index({ shopOrigin }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [productsId, setProductsId] = useState([]);
 
-    function handleProductSelection(payload) {
-        setIsOpen(false);
-        setProducts(payload.selection)
+  useEffect(() => {
+    const productList = store.get(`${shopOrigin}-products`);
+    if (productList) {
+      setProducts(productList);
     }
+  }, []);
 
+  useEffect(() => {
+    const ids = products.map((product) => {
+      return {
+        id: product.id,
+      };
+    });
+    setProductsId(ids);
+  }, [products]);
 
-    return (
-        <Page
-            fullWidth
-            title="Product Selector"
-            primaryAction={{
-                content: "Select product",
-                onAction: () => setIsOpen(true),
-        }}>
-            <ResourcePicker
-                resourceType="Product"
-                open={isOpen}
-                onCancel={() => setIsOpen(false)}
-                onSelection={handleProductSelection}
-            />
+  function handleProductSelection(payload) {
+    setIsOpen(false);
+    setProducts(payload.selection);
+    store.set(`${shopOrigin}-products`, payload.selection);
+  }
 
-            {products.map((product) => (
-                <div>{product.title}</div>
-            ))}
+  return (
+    <>
+      <ResourcePicker
+        resourceType="Product"
+        open={isOpen}
+        onCancel={() => setIsOpen(false)}
+        onSelection={handleProductSelection}
+        initialSelectionIds={productsId}
+      />
 
-        </Page>
-    );
+      {products.length > 0 ? (
+        <ProductPage setIsOpen={setIsOpen} products={products} />
+      ) : (
+        <ProductEmptyState setIsOpen={setIsOpen} />
+      )}
+    </>
+  );
 }
 
 export default index;
