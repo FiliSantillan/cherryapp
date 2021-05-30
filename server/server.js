@@ -7,6 +7,8 @@ import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
 import fs from "fs";
+import routes from "./router/index";
+
 import { Session } from "@shopify/shopify-api/dist/auth/session";
 
 dotenv.config();
@@ -127,6 +129,8 @@ app.prepare().then(async () => {
       await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
     }
   );
+
+  server.use(routes());
 
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
