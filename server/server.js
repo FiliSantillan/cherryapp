@@ -6,6 +6,8 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
+import fs from "fs";
+import { Session } from "@shopify/shopify-api/dist/auth/session";
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -14,6 +16,31 @@ const app = next({
   dev,
 });
 const handle = app.getRequestHandler();
+const FILE_NAME = "./session.js";
+
+function storeCallback(session) {
+  fs.writeFileSync(FILE_NAME, JSON.stringify(session));
+  return true;
+}
+
+function loadCallback(id) {
+  if (fs.existsSync(FILE_NAME)) {
+    const sessionResult = fs.readFileSync(FILE_NAME, "utf8");
+    return Object.assign(new Session(), JSON.parse(sessionResult));
+  }
+
+  return false;
+}
+
+function deleteCallback(id) {
+  console.log("Delete callback", id);
+}
+
+const sessionStorage = new Shopify.Session.CustomSessionStorage(
+  storeCallback,
+  loadCallback,
+  deleteCallback
+);
 
 Shopify.Context.initialize({
   API_KEY: process.env.SHOPIFY_API_KEY,
@@ -23,12 +50,17 @@ Shopify.Context.initialize({
   API_VERSION: ApiVersion.October20,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
-  SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+  SESSION_STORAGE: sessionStorage,
 });
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
 // persist this object in your app.
 const ACTIVE_SHOPIFY_SHOPS = {};
+const session = loadCallback();
+
+if (session?.shop && session?.scope) {
+  ACTIVE_SHOPIFY_SHOPS[session.shop] = session.scope;
+}
 
 app.prepare().then(async () => {
   const server = new Koa();
