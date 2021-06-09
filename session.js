@@ -1,1 +1,0 @@
-{"id":"c67d995d-40b5-4ebd-9f0d-d5d705cbc71f","shop":"undefined","state":"966632965816053","isOnline":true}

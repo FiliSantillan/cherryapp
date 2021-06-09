@@ -1,27 +1,43 @@
-import fetch from "node-fetch";
+import { DataType } from "@shopify/shopify-api";
 
-export async function createScriptTag(shop, token) {
-  const url = getScriptTagUrl(shop);
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Access-Token": token,
-    },
-    body: {
+export async function createScriptTag(client) {
+  if (client) {
+    const data = {
       script_tag: {
         event: "onload",
         src: "https://google.com",
       },
-    },
-  };
+    };
 
-  try {
-    const response = await fetch(url, options);
-    console.log(response.data);
-  } catch (error) {
-    console.error(`Error creating a new tag: ${error}`);
+    const result = await client.post({
+      path: "script_tags",
+      data,
+      type: DataType.JSON,
+    });
+
+    console.log("result:", result);
+    return result;
   }
+
+  console.error("Could not make the rest request as the client does not exist");
+}
+
+export async function getAllScriptTags(client, src) {
+  if (!client) {
+    console.error(
+      "Could not make the rest request as the client does not exist"
+    );
+
+    return;
+  }
+
+  const result = await client.get({
+    path: "script_tags",
+  });
+
+  const matchSrc = result.body.script_tags.filter((tag) => tag.src === src);
+
+  return matchSrc.length > 0;
 }
 
 function getBaseUrl(shop) {

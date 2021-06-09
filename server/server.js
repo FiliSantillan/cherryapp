@@ -130,6 +130,20 @@ app.prepare().then(async () => {
     }
   );
 
+  async function injectSession(ctx, next) {
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    ctx.sessionFromToken = session;
+    if (session?.shop && session?.accessToken) {
+      const client = new Shopify.Clients.Rest(
+        session.shop,
+        session.accessToken
+      );
+      ctx.myClient = client;
+    }
+    return next();
+  }
+
+  server.use(injectSession);
   server.use(routes());
 
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
