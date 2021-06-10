@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Layout, Page, SettingToggle, TextStyle } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { getSessionToken } from "@shopify/app-bridge-utils";
-import fetch from "node-fetch";
 
 function install() {
   const app = useAppBridge();
   const [isInstalled, setIsInstalled] = useState(null);
+  const [scriptTagId, setScriptTagId] = useState();
   const titleDescription = isInstalled ? "Uninstall" : "Install";
   const bodyDescription = isInstalled ? "installed" : "uninstalled";
 
@@ -27,6 +27,10 @@ function install() {
 
     const data = await response.json();
     setIsInstalled(data.installed);
+
+    if (data.details.length > 0) {
+      setScriptTagId(data.details[0].id);
+    }
   }
 
   useEffect(() => {
@@ -34,17 +38,28 @@ function install() {
   }, []);
 
   async function handleAction() {
-    if (!isInstalled) {
-      const token = await getSessionToken(app);
+    const token = await getSessionToken(app);
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
 
+    if (!isInstalled) {
       const options = {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       };
 
       await fetch("https://2eb084f8fa5d.ngrok.io/script_tag", options);
+    } else {
+      const options = {
+        method: "DELETE",
+        headers,
+      };
+
+      await fetch(
+        `https://2eb084f8fa5d.ngrok.io/script_tag/?id=${scriptTagId}`,
+        options
+      );
     }
 
     setIsInstalled((oldValue) => !oldValue);

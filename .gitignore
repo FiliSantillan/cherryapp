@@ -22,3 +22,4 @@ config/tunnel.pid
 
 # Shopify Data
 session.js
+session.json

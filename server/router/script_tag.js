@@ -1,6 +1,7 @@
 import Router from "koa-router";
 import {
   createScriptTag,
+  deleteScriptTagById,
   getAllScriptTags,
 } from "../controllers/script_tag_controller";
 
@@ -14,7 +15,8 @@ router.get("/all", async (ctx) => {
   const result = await getAllScriptTags(ctx.myClient, "https://google.com/");
 
   ctx.body = {
-    installed: result,
+    installed: result.length > 0,
+    details: result,
   };
 });
 
@@ -26,7 +28,9 @@ router.post("/", async (ctx) => {
 });
 
 router.delete("/", async (ctx) => {
-  ctx.body = "Delete script tag";
+  const id = ctx.query.id;
+  const result = await deleteScriptTagById(ctx.myClient, id);
+  ctx.body = result;
 });
 
 export default router;
