@@ -21,8 +21,6 @@ router.get("/all", async (ctx) => {
 });
 
 router.post("/", async (ctx) => {
-  console.log("create script tag", ctx.sessionFromToken);
-  //const { shop, accessToken } = ctx.sessionFromToken;
   await createScriptTag(ctx.myClient);
   ctx.body = "Create a script tag";
 });

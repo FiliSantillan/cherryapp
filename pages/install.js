@@ -21,7 +21,7 @@ function install() {
     };
 
     const response = await fetch(
-      "https://2eb084f8fa5d.ngrok.io/script_tag/all",
+      "https://cherryapp.ngrok.io/script_tag/all",
       options
     );
 
@@ -49,7 +49,7 @@ function install() {
         headers,
       };
 
-      await fetch("https://2eb084f8fa5d.ngrok.io/script_tag", options);
+      await fetch("https://cherryapp.ngrok.io/script_tag", options);
     } else {
       const options = {
         method: "DELETE",
@@ -57,7 +57,7 @@ function install() {
       };
 
       await fetch(
-        `https://2eb084f8fa5d.ngrok.io/script_tag/?id=${scriptTagId}`,
+        `https://cherryapp.ngrok.io/script_tag/?id=${scriptTagId}`,
         options
       );
     }

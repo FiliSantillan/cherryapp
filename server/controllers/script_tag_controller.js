@@ -15,7 +15,6 @@ export async function createScriptTag(client) {
       type: DataType.JSON,
     });
 
-    console.log("result:", result);
     return result;
   }
 
@@ -53,7 +52,6 @@ export async function deleteScriptTagById(client, id) {
     path: `script_tags/${id}`,
   });
 
-  console.log(result);
   return result;
 }
 
