@@ -1,0 +1,33 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:shopify/react",
+    "plugin:shopify/polaris",
+    "plugin:shopify/jest",
+    "plugin:shopify/webpack"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 11
+  },
+  "plugins": ["react"],
+  "rules": {
+    "import/no-unresolved": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.*"],
+      "rules": {
+        "shopify/jsx-no-hardcoded-content": "off"
+      }
+    }
+  ]
+}

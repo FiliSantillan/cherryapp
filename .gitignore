@@ -19,3 +19,7 @@ config/tunnel.pid
 
 # next build output
 .next/
+
+# Shopify Data
+session.js
+session.json
