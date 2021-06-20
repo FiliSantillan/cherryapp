@@ -19,7 +19,7 @@ const app = next({
   dev,
 });
 const handle = app.getRequestHandler();
-const FILE_NAME = "./session.js";
+const FILE_NAME = "./session.json";
 
 function storeCallback(session) {
   fs.writeFileSync(FILE_NAME, JSON.stringify(session));

@@ -37,24 +37,45 @@ async function getAssetThemeLiquid(id, url, token) {
     return;
   }
 
-  const snippet = fs.readFileSync(
-    path.resolve(__dirname, "../../liquid/theme.liquid")
-  );
+  const snippet = getFile("../../liquid/theme.liquid");
 
-  let newPage = data.asset.value;
+  const page = data.asset.value;
 
-  if (newPage.includes(snippet)) {
+  if (page.includes(snippet)) {
     console.log("Page already has the snippet installed");
     return;
   }
 
-  newPage = data.asset.value.replace(
+  const newPage = page.replace(
     "{% section 'header' %}",
-    `{% section 'header' %}\n${snippet}`
+    `\n{% section 'header' %}\n${snippet}`
   );
 
-  console.log("New page:", newPage);
   return newPage;
+}
+
+async function uploadAssetTheme(url, token, id, page, pageName) {
+  const options = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": token,
+    },
+    body: JSON.stringify({
+      asset: {
+        key: pageName,
+        value: page,
+      },
+    }),
+  };
+
+  const response = await fetch(`${url}/themes/${id}/assets.json`, options);
+  const data = await response.json();
+  console.log("Upload page data:", data);
+}
+
+function getFile(fileName) {
+  return fs.readFileSync(path.resolve(__dirname, fileName));
 }
 
 export async function updateTheme(shop, accessToken) {
@@ -65,5 +86,25 @@ export async function updateTheme(shop, accessToken) {
     return;
   }
 
-  await getAssetThemeLiquid(mainThemeId, baseURL, accessToken);
+  const newPage = await getAssetThemeLiquid(mainThemeId, baseURL, accessToken);
+
+  if (newPage) {
+    await uploadAssetTheme(
+      baseURL,
+      accessToken,
+      mainThemeId,
+      newPage,
+      "layout/theme.liquid"
+    );
+  }
+
+  const newSnippet = getFile("../../liquid/ch-banner.liquid");
+
+  await uploadAssetTheme(
+    baseURL,
+    accessToken,
+    mainThemeId,
+    `${newSnippet}`,
+    "snippets/ch-banner.liquid"
+  );
 }
